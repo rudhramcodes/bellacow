@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Check, Bell } from 'lucide-react';
+import { Search, X, Check, Bell, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import Lenis from 'lenis';
 import ZoomParallax from './components/ZoomParallax';
 
@@ -131,32 +131,89 @@ export default function App() {
   const [contactVal, setContactVal] = useState('');
 
   const heroVideoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const [videoEnded, setVideoEnded] = useState(false);
 
   useEffect(() => {
     const video = heroVideoRef.current;
     if (!video) return;
 
-    video.muted = false;
     video.loop = false;
 
+    // Attempt unmuted play first
+    video.muted = false;
     const playPromise = video.play();
     if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Fallback for browsers that block unmuted autoplay prior to interaction
-        video.muted = true;
-        video.play();
-        const enableSound = () => {
-          video.muted = false;
-          window.removeEventListener('click', enableSound);
-          window.removeEventListener('touchstart', enableSound);
-          window.removeEventListener('scroll', enableSound);
-        };
-        window.addEventListener('click', enableSound, { once: true });
-        window.addEventListener('touchstart', enableSound, { once: true });
-        window.addEventListener('scroll', enableSound, { once: true });
-      });
+      playPromise
+        .then(() => {
+          setIsMuted(false);
+        })
+        .catch(() => {
+          // Browser policy blocked unmuted autoplay, start muted
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
     }
+
+    const handleEnded = () => {
+      setVideoEnded(true);
+    };
+
+    video.addEventListener('ended', handleEnded);
+
+    // On user's first gesture, unmute and replay if it already finished
+    const handleFirstGesture = () => {
+      if (video && video.muted) {
+        video.muted = false;
+        setIsMuted(false);
+        if (video.ended || video.currentTime > 8) {
+          video.currentTime = 0;
+          setVideoEnded(false);
+        }
+        video.play().catch(() => {});
+      }
+    };
+
+    window.addEventListener('click', handleFirstGesture, { once: true });
+    window.addEventListener('touchstart', handleFirstGesture, { once: true });
+
+    return () => {
+      video.removeEventListener('ended', handleEnded);
+      window.removeEventListener('click', handleFirstGesture);
+      window.removeEventListener('touchstart', handleFirstGesture);
+    };
   }, []);
+
+  const toggleSound = (e) => {
+    e?.stopPropagation();
+    const video = heroVideoRef.current;
+    if (!video) return;
+
+    if (video.muted) {
+      video.muted = false;
+      setIsMuted(false);
+      if (video.ended || video.currentTime > 8) {
+        video.currentTime = 0;
+        setVideoEnded(false);
+      }
+      video.play().catch(() => {});
+    } else {
+      video.muted = true;
+      setIsMuted(true);
+    }
+  };
+
+  const replayVideo = (e) => {
+    e?.stopPropagation();
+    const video = heroVideoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.muted = false;
+    setIsMuted(false);
+    setVideoEnded(false);
+    video.play().catch(() => {});
+  };
 
   // Lenis smooth scroll for zoom parallax experience
   useEffect(() => {
@@ -228,8 +285,40 @@ export default function App() {
             src="/videos/hero-video.mp4"
             autoPlay
             playsInline
-            className="w-full h-[60vh] sm:h-[72vh] md:h-auto min-h-[420px] sm:min-h-[500px] md:min-h-0 object-cover object-center block"
+            onClick={toggleSound}
+            className="w-full h-[60vh] sm:h-[72vh] md:h-auto min-h-[420px] sm:min-h-[500px] md:min-h-0 object-cover object-center block cursor-pointer"
           />
+
+          {/* Floating Sound & Replay Controls */}
+          <div className="absolute top-20 sm:top-24 right-4 sm:right-8 z-20 flex items-center gap-2">
+            <button
+              onClick={toggleSound}
+              className="bg-[#2F3426]/80 hover:bg-[#2F3426] backdrop-blur-md text-[#FAF5EC] px-3.5 py-2 rounded-full flex items-center gap-2 text-xs font-medium shadow-lg transition-all border border-white/20 cursor-pointer"
+              title={isMuted ? "Unmute Bella" : "Mute Bella"}
+            >
+              {isMuted ? (
+                <>
+                  <VolumeX className="w-4 h-4 text-[#BA6951]" />
+                  <span>Tap for Bella's Voice</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-[#A8D5BA] animate-pulse" />
+                  <span>Sound On</span>
+                </>
+              )}
+            </button>
+            {videoEnded && (
+              <button
+                onClick={replayVideo}
+                className="bg-[#BA6951] hover:bg-[#A35540] text-white px-3 py-2 rounded-full shadow-lg transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+                title="Replay Video with Voice"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Listen Again</span>
+              </button>
+            )}
+          </div>
 
           {/* Smooth Creamy Milk Fade Connecting Directly Into Section 2 */}
           <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-36 md:h-48 lg:h-64 bg-gradient-to-b from-transparent via-[#F4F1E8]/50 via-50% via-[#F4F1E8]/85 via-80% to-[#F4F1E8] pointer-events-none" />
