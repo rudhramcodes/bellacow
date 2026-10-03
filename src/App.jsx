@@ -1,8 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Check, Bell, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import {
+  X, Check, Bell, Volume2, VolumeX, RotateCcw,
+} from 'lucide-react';
 import Lenis from 'lenis';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ZoomParallax from './components/ZoomParallax';
+import ScrollFloat from './components/ui/ScrollFloat';
+import MilkFloatingFooter from './components/MilkFloatingFooter';
 
 
 /* ========================================================================= */
@@ -122,6 +127,51 @@ function CurdMatkaDoodle({ className = "w-9 h-9" }) {
 }
 
 /* ========================================================================= */
+/* REALISTIC COWBELL CHIME AUDIO SYNTHESIZER (WEB AUDIO API)                 */
+/* ========================================================================= */
+function playCowbellChime() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    const now = ctx.currentTime;
+    const harmonics = [
+      { freq: 784, gain: 0.32, decay: 1.8, type: 'sine' },        // G5 fundamental
+      { freq: 1174.6, gain: 0.22, decay: 1.4, type: 'triangle' }, // D6 resonant fifth
+      { freq: 1568, gain: 0.14, decay: 1.1, type: 'sine' },       // G6 octave
+      { freq: 2349.3, gain: 0.09, decay: 0.7, type: 'sine' },     // D7 shimmer
+      { freq: 587.3, gain: 0.26, decay: 1.6, type: 'sine' }       // D5 warm body
+    ];
+
+    harmonics.forEach(({ freq, gain, decay, type }) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.996, now + decay);
+
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(gain, now + 0.012);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + decay);
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + decay + 0.05);
+    });
+  } catch (err) {
+    console.error("Audio bell chime failed:", err);
+  }
+}
+
+
+
+/* ========================================================================= */
 /* MAIN COMPONENT                                                            */
 /* ========================================================================= */
 export default function App() {
@@ -131,7 +181,7 @@ export default function App() {
   const [contactVal, setContactVal] = useState('');
 
   const heroVideoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const [videoEnded, setVideoEnded] = useState(false);
 
   useEffect(() => {
@@ -140,8 +190,10 @@ export default function App() {
 
     video.loop = false;
 
-    // Attempt unmuted play first
+    // Start with sound ON initially
     video.muted = false;
+    setIsMuted(false);
+
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise
@@ -149,10 +201,11 @@ export default function App() {
           setIsMuted(false);
         })
         .catch(() => {
-          // Browser policy blocked unmuted autoplay, start muted
+          // If browser strictly blocks unmuted autoplay without prior interaction,
+          // mute as fallback so visual playback starts smoothly
           video.muted = true;
           setIsMuted(true);
-          video.play().catch(() => {});
+          video.play().catch(() => { });
         });
     }
 
@@ -162,26 +215,8 @@ export default function App() {
 
     video.addEventListener('ended', handleEnded);
 
-    // On user's first gesture, unmute and replay if it already finished
-    const handleFirstGesture = () => {
-      if (video && video.muted) {
-        video.muted = false;
-        setIsMuted(false);
-        if (video.ended || video.currentTime > 8) {
-          video.currentTime = 0;
-          setVideoEnded(false);
-        }
-        video.play().catch(() => {});
-      }
-    };
-
-    window.addEventListener('click', handleFirstGesture, { once: true });
-    window.addEventListener('touchstart', handleFirstGesture, { once: true });
-
     return () => {
       video.removeEventListener('ended', handleEnded);
-      window.removeEventListener('click', handleFirstGesture);
-      window.removeEventListener('touchstart', handleFirstGesture);
     };
   }, []);
 
@@ -197,7 +232,7 @@ export default function App() {
         video.currentTime = 0;
         setVideoEnded(false);
       }
-      video.play().catch(() => {});
+      video.play().catch(() => { });
     } else {
       video.muted = true;
       setIsMuted(true);
@@ -212,7 +247,7 @@ export default function App() {
     video.muted = false;
     setIsMuted(false);
     setVideoEnded(false);
-    video.play().catch(() => {});
+    video.play().catch(() => { });
   };
 
   // Lenis smooth scroll for zoom parallax experience
@@ -222,6 +257,9 @@ export default function App() {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+
+    // Synchronize Lenis smooth scroll with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
 
     function raf(time) {
       lenis.raf(time);
@@ -277,47 +315,45 @@ export default function App() {
       {/* =================================================================== */}
       {/* SECTION 1: HERO VIDEO (AUTOPLAY, UNMUTED, 1-TIME PLAY, NATURAL HT)  */}
       {/* =================================================================== */}
-      <section className="relative w-full overflow-hidden">
-        {/* Responsive Video: Prominent & Centered on Mobile, Natural on Desktop */}
+      <section className="relative w-full overflow-hidden bg-[#FAF8F5]">
+        {/* Responsive Video: Centered, Natural Height */}
         <div className="relative w-full overflow-hidden">
           <video
             ref={heroVideoRef}
             src="/videos/hero-video.mp4"
             autoPlay
             playsInline
-            onClick={toggleSound}
-            className="w-full h-[60vh] sm:h-[72vh] md:h-auto min-h-[420px] sm:min-h-[500px] md:min-h-0 object-cover object-center block cursor-pointer"
+            className="w-full h-[60vh] sm:h-[72vh] md:h-auto min-h-[420px] sm:min-h-[500px] md:min-h-0 object-cover object-center block"
           />
 
-          {/* Floating Sound & Replay Controls */}
-          <div className="absolute top-20 sm:top-24 right-4 sm:right-8 z-20 flex items-center gap-2">
+          {/* Floating Sound & Replay Controls (Bottom-Right, Icon-Only, Optimal Ergonomics) */}
+          <div className="absolute bottom-6 sm:bottom-8 right-4 sm:right-8 z-30 flex items-center gap-2.5 pointer-events-auto">
             <button
+              type="button"
               onClick={toggleSound}
-              className="bg-[#2F3426]/80 hover:bg-[#2F3426] backdrop-blur-md text-[#FAF5EC] px-3.5 py-2 rounded-full flex items-center gap-2 text-xs font-medium shadow-lg transition-all border border-white/20 cursor-pointer"
-              title={isMuted ? "Unmute Bella" : "Mute Bella"}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#1E1B18]/75 hover:bg-[#1E1B18]/90 text-[#FAF5EC] backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+              title={isMuted ? "Unmute Bella's Voice" : "Mute Sound"}
+              aria-label={isMuted ? "Unmute Bella's Voice" : "Mute Sound"}
             >
               {isMuted ? (
-                <>
-                  <VolumeX className="w-4 h-4 text-[#BA6951]" />
-                  <span>Tap for Bella's Voice</span>
-                </>
+                <VolumeX className="w-5 h-5 text-[#BA6951]" />
               ) : (
-                <>
-                  <Volume2 className="w-4 h-4 text-[#A8D5BA] animate-pulse" />
-                  <span>Sound On</span>
-                </>
+                <Volume2 className="w-5 h-5 text-[#A8D5BA]" />
               )}
             </button>
-            {videoEnded && (
-              <button
-                onClick={replayVideo}
-                className="bg-[#BA6951] hover:bg-[#A35540] text-white px-3 py-2 rounded-full shadow-lg transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
-                title="Replay Video with Voice"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Listen Again</span>
-              </button>
-            )}
+
+            <button
+              type="button"
+              onClick={replayVideo}
+              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${videoEnded
+                  ? "bg-[#BA6951] hover:bg-[#A35540] text-white ring-2 ring-[#BA6951]/40 animate-pulse"
+                  : "bg-[#1E1B18]/75 hover:bg-[#1E1B18]/90 text-[#FAF5EC]"
+                }`}
+              title="Replay Video"
+              aria-label="Replay Video"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Smooth Creamy Milk Fade Connecting Directly Into Section 2 */}
@@ -325,10 +361,42 @@ export default function App() {
         </div>
       </section>
 
+
+      {/* =================================================================== */}
+      {/* INTERLUDE: FROM OUR FARM TO YOUR EVERYDAY (SCROLLFLOAT REVEAL)      */}
+      {/* =================================================================== */}
+      <section className="relative w-full py-16 sm:py-24 md:py-28 px-4 sm:px-6 md:px-8 bg-[#F4F1E8] flex flex-col items-center justify-center text-center overflow-visible">
+        <div className="max-w-4xl mx-auto flex flex-col items-center overflow-visible">
+          <ScrollFloat
+            animationDuration={0.8}
+            ease="back.out(2)"
+            scrollStart="top 85%"
+            scrollEnd="top 35%"
+            stagger={0.015}
+            containerClassName="w-full flex justify-center overflow-visible"
+            textClassName="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-normal sm:font-medium text-[#2F3426] tracking-[-0.02em] leading-[1.2] pb-3"
+          >
+            From our farm to your everyday
+          </ScrollFloat>
+        </div>
+      </section>
+
+
       {/* =================================================================== */}
       {/* SECTION 2: ZOOM PARALLAX (OLIVIER LAROSE SIGNATURE ARCHITECTURE)    */}
       {/* =================================================================== */}
       <ZoomParallax />
+
+
+
+      {/* =================================================================== */}
+      {/* REAL FLOATING MILK FOOTER (100% RESPONSIVE - MOBILE TO ULTRA-WIDE)  */}
+      {/* =================================================================== */}
+      <MilkFloatingFooter
+        onOpenStory={() => setStoryOpen(true)}
+        onOpenSignUp={() => setSignUpOpen(true)}
+      />
+
 
 
       {/* =================================================================== */}
@@ -358,52 +426,79 @@ export default function App() {
               </button>
 
               <div className="flex items-center gap-3 mb-6 border-b border-[#EADBCE] pb-4">
-                <div className="w-10 h-10 rounded-full bg-[#B46B55] text-white flex items-center justify-center shadow-sm">
+                <div className="w-11 h-11 rounded-full bg-[#BA6951] text-white flex items-center justify-center shadow-sm">
                   <Bell className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-2xl text-[#3D2517] leading-none">
-                    Bella's Diary
+                  <h2 className="font-serif text-2xl sm:text-3xl text-[#1E1B18] font-bold leading-none">
+                    Meet Bella
                   </h2>
-                  <span className="font-handwritten text-base text-[#B46B55]">
-                    "From my pasture to your glass"
+                  <span className="font-mono text-xs text-[#BA6951] uppercase tracking-wider font-semibold">
+                    The Bell That Started It All
                   </span>
                 </div>
               </div>
 
-              <div className="space-y-5 text-sm sm:text-base text-[#6A4636] leading-relaxed font-normal">
-                <p>
-                  <strong>Hello, I am Bella.</strong> If you walk into a grocery shop today, hundreds of plastic cartons shout at you. They boast of vitamins, laboratory testing, and glossy discount labels.
-                </p>
-                <p>
-                  I never wanted our dairy to show up like that. Before my milk ever reaches a store shelf, I wanted to reach your heart. I wanted to meet your children, share a cold scoop of kesar ice cream, and give you a genuine reason to smile.
+              <div className="space-y-4 text-sm sm:text-base text-[#4A3B32] leading-relaxed">
+                <p className="font-serif text-lg text-[#1E1B18] italic border-l-2 border-[#BA6951] pl-3 py-1">
+                  “Every world has a character you remember. Ours has a bell around her neck.”
                 </p>
 
-                <div className="bg-[#FAF5EC] p-4 rounded-xl border border-[#EADBCE] space-y-3 my-4">
-                  <h3 className="font-serif text-lg text-[#3D2517]">
-                    Why I Wear The Bell
+                <p>
+                  <strong className="text-[#1E1B18]">This Navratri, meet Bella.</strong>
+                </p>
+
+                <p>
+                  She’s not just a cow. She’s the calm presence behind every glass of milk, the familiar bell you hear before sunrise, and the quiet little reminder that some things are better when they stay simple.
+                </p>
+
+                <p>
+                  Bella lives in a world where freshness is a ritual, trust is earned every day, and good milk doesn’t need a complicated story.
+                </p>
+
+                <p>
+                  So we built Bella’s World — a place inspired by the things we grew up with, but made for the way we live today.
+                </p>
+
+                <p>
+                  And during Navratri, when every corner comes alive with colour, music and celebration, Bella has her own little celebration too.
+                </p>
+
+                {/* The Bell That Started It All Callout */}
+                <div className="bg-[#FAF5EC] p-5 rounded-2xl border border-[#EADBCE] space-y-3 my-4">
+                  <h3 className="font-serif text-lg font-bold text-[#1E1B18]">
+                    Meet Bella: The Bell That Started It All
                   </h3>
-                  <p className="text-xs sm:text-sm">
-                    Long before milk came in a bottle, it came with a sound. A quiet bicycle bell outside your gate at dawn meant honest milk was here. In every herd, one cow wears the bell because every other cow trusts her to guide them safely home. That quiet responsibility is who I am.
+                  <p className="text-xs sm:text-sm text-[#5C4C42]">
+                    Before milk came with labels, logos and promises, it came with a sound.
+                  </p>
+                  <p className="text-xs sm:text-sm text-[#5C4C42]">
+                    A bicycle bell outside your gate. A familiar ring in the early morning. A small sound that meant one thing — the milk was here.
+                  </p>
+                  <p className="text-xs sm:text-sm text-[#5C4C42]">
+                    Bella gets her name from that feeling. She represents the kind of trust that doesn’t need an introduction. The kind you recognise before you even see it.
+                  </p>
+                  <div className="text-xs font-mono font-bold text-[#BA6951] pt-1">
+                    One little bell. A thousand familiar mornings.
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#F4EFE6] border border-[#E3DACB]">
+                  <h4 className="font-serif text-base font-bold text-[#1E1B18] mb-1">
+                    A World Built Around Goodness
+                  </h4>
+                  <p className="text-xs sm:text-sm text-[#6C584C]">
+                    Bella’s world is simple. There are no complicated rules here. Just fresh milk, happy cows, honest processes and the little things that make everyday life complete.
                   </p>
                 </div>
 
-                <div className="bg-[#FAF5EC] p-4 rounded-xl border border-[#EADBCE] space-y-3">
-                  <h3 className="font-serif text-lg text-[#3D2517]">
-                    The Untouched Promise
-                  </h3>
-                  <p className="text-xs sm:text-sm">
-                    The less it is touched, the more it is yours to trust. From the moment milk leaves the cow, it moves through sealed, chilled stainless lines directly into bottles and cartons at four degrees Celsius. Human love in caring for the herd, clean technology in protecting the milk.
-                  </p>
-                </div>
-
-                <p>
-                  Come visit our 18-foot giant ice cream cup stall in Surat this Navratri. I have saved a scoop of fresh kesar gelato just for you.
+                <p className="text-xs sm:text-sm text-[#7D6B5E] italic">
+                  Because this time, you’re not just meeting a brand. You’re meeting Bella.
                 </p>
               </div>
 
               <div className="mt-8 pt-4 border-t border-[#EADBCE] flex items-center justify-between">
-                <span className="font-handwritten text-lg text-[#3D2517]">
+                <span className="font-handwritten text-xl text-[#1E1B18]">
                   With love, Bella
                 </span>
                 <button
@@ -411,9 +506,9 @@ export default function App() {
                     setStoryOpen(false);
                     setSignUpOpen(true);
                   }}
-                  className="bg-[#3D2517] hover:bg-[#2F1C14] text-[#FAF5EC] text-xs font-semibold px-6 py-2.5 rounded-full transition-colors cursor-pointer"
+                  className="bg-[#BA6951] hover:bg-[#A35540] text-white text-xs font-semibold px-6 py-2.5 rounded-full transition-colors cursor-pointer shadow-md uppercase tracking-wider"
                 >
-                  Get Tasting Pass
+                  Meet Her In Surat
                 </button>
               </div>
             </motion.div>

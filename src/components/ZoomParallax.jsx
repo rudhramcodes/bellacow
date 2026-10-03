@@ -64,7 +64,7 @@ export default function ZoomParallax() {
                 <img
                   src={src}
                   alt={alt}
-                />
+                  />
               </div>
             </motion.div>
           );
