@@ -57,7 +57,7 @@ function ProductScene({ product, index, reduceMotion }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.42 }}
         transition={{ duration: reduceMotion ? 0 : 0.55, delay: reduceMotion ? 0 : 0.12, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute left-4 right-4 top-[11svh] z-20 rounded-[1.8rem] border border-white/55 bg-[#F8EAD8]/[0.58] px-5 py-5 text-[#2F3426] shadow-[0_16px_38px_rgba(61,73,38,0.18)] backdrop-blur-2xl backdrop-saturate-150 sm:left-8 sm:right-auto sm:top-[10svh] sm:max-w-[31rem] sm:px-7 sm:py-6 lg:left-[7vw] lg:top-1/2 lg:w-[min(31rem,38vw)] lg:-translate-y-1/2 lg:px-9 lg:py-8"
+        className="bella-liquid-glass absolute left-4 right-4 top-[11svh] z-20 rounded-[1.8rem] px-5 py-5 text-[#2F3426] sm:left-8 sm:right-auto sm:top-[10svh] sm:max-w-[31rem] sm:px-7 sm:py-6 lg:left-[7vw] lg:top-1/2 lg:w-[min(31rem,38vw)] lg:-translate-y-1/2 lg:px-9 lg:py-8"
       >
         <p className="font-serif text-lg leading-none text-[#6A4636]">{product.format}</p>
         <h2 className="mt-2 font-serif text-4xl leading-[0.9] tracking-[-0.05em] sm:text-6xl lg:text-6xl">{product.name}</h2>
@@ -79,7 +79,7 @@ export default function FarmProductFilm() {
       <section className="relative min-h-[82svh] overflow-hidden bg-[#DCEAF1]">
         <GardenBackground index={0} reduceMotion={reduceMotion} lazy />
         <div className="relative mx-auto flex min-h-[82svh] max-w-7xl items-center px-5 py-20 sm:px-8 lg:px-12">
-          <motion.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }} className="max-w-2xl rounded-[2rem] bg-[#FFFDF7]/94 p-7 text-[#2F3426] shadow-[0_16px_38px_rgba(61,73,38,0.14)] sm:p-10">
+          <motion.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }} className="bella-liquid-glass max-w-2xl rounded-[2rem] p-7 text-[#2F3426] sm:p-10">
             <h2 className="font-serif text-[clamp(4.25rem,10vw,8.5rem)] leading-[0.78] tracking-[-0.065em]">Coming<br />soon.</h2>
             <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-serif text-xl text-[#4B513B] sm:text-3xl">
               <span>Artisanal Ice Cream Cups</span>

@@ -9,6 +9,7 @@ import ZoomParallax from './components/ZoomParallax';
 import ScrollFloat from './components/ui/ScrollFloat';
 import MilkFloatingFooter from './components/MilkFloatingFooter';
 import FarmProductFilm from './components/FarmProductFilm';
+import OurStory from './components/OurStory';
 
 
 /* ========================================================================= */
@@ -387,6 +388,8 @@ export default function App() {
       {/* SECTION 2: ZOOM PARALLAX (OLIVIER LAROSE SIGNATURE ARCHITECTURE)    */}
       {/* =================================================================== */}
       <ZoomParallax />
+
+      <OurStory />
 
       <FarmProductFilm />
 

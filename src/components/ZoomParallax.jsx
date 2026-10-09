@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { useScroll, useTransform, motion } from 'framer-motion';
 
 export default function ZoomParallax() {
@@ -18,39 +18,39 @@ export default function ZoomParallax() {
 
   const pictures = [
     {
-      src: '/images/zoom_1_pasture.jpg',
+      src: '/images/bella-gallery/farm.webp',
       scale: scale4,
-      alt: 'Lush green morning dairy pasture in Gujarat',
+      alt: 'Sunrise over the Bella Cow farm, with grazing cows and a dairy farmhouse',
     },
     {
-      src: '/images/zoom_2_ghee.jpg',
+      src: '/images/bella-gallery/ghee.webp',
       scale: scale5,
-      alt: 'Artisanal Vedic Bilona cow ghee in earthen pot',
+      alt: 'Bella Cow Bilona Ghee jar in a sunlit farmhouse kitchen',
     },
     {
-      src: '/images/zoom_3_milk.jpg',
+      src: '/images/bella-gallery/milk.webp',
       scale: scale6,
-      alt: 'Fresh organic cow milk pouring into glass dairy bottle',
+      alt: 'Bella Cow Protein Milk glass bottle overlooking the pasture',
     },
     {
-      src: '/images/zoom_4_gelato.jpg',
+      src: '/images/bella-gallery/ice-cream.webp',
       scale: scale5,
-      alt: 'Slow-churned saffron kesar and pistachio gelato ice cream',
+      alt: 'Bella Cow Ice Cream tin beside a scoop of almond ice cream',
     },
     {
-      src: '/images/zoom_5_paneer.jpg',
+      src: '/images/bella-gallery/paneer.webp',
       scale: scale6,
-      alt: 'Handmade artisanal paneer in woven bamboo cane basket',
+      alt: 'Bella Cow Paneer in its woven cane package on a farmhouse table',
     },
     {
-      src: '/images/zoom_6_curd.jpg',
+      src: '/images/bella-gallery/curd.webp',
       scale: scale8,
-      alt: 'Naturally set thick curd in traditional terracotta matka',
+      alt: 'Bella Cow Curd terracotta pot by a sunlit kitchen window',
     },
     {
-      src: '/images/zoom_7_calf.jpg',
+      src: '/images/bella-gallery/buttermilk.webp',
       scale: scale9,
-      alt: 'Adorable young dairy calf in sunlit wildflower meadow',
+      alt: 'Bella Cow Buttermilk carton with its cow-head cap and brass bell',
     },
   ];
 
@@ -64,6 +64,7 @@ export default function ZoomParallax() {
                 <img
                   src={src}
                   alt={alt}
+                  decoding="async"
                   />
               </div>
             </motion.div>

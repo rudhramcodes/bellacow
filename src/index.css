@@ -54,6 +54,36 @@
   }
 }
 
+.bella-liquid-glass {
+  background-color: rgba(248, 234, 216, 0.12);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04) 48%, rgba(255, 253, 247, 0.14));
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  backdrop-filter: blur(22px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-left-color: rgba(255, 255, 255, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+    inset 1px 0 8px rgba(255, 255, 255, 0.12),
+    0 12px 36px rgba(47, 52, 38, 0.1),
+    0 2px 6px rgba(47, 52, 38, 0.04);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .bella-liquid-glass {
+    background-color: rgba(248, 240, 227, 0.9);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .bella-liquid-glass {
+    background: #F4F1E8;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* Scrapbook & Pinterest Elements */
 .scrapbook-canvas {
   background-color: #FAF7F2;
@@ -190,10 +220,10 @@
 
 /* 7th element (bottom right) */
 .zoom_el:nth-of-type(7) .zoom_imageContainer {
-  top: 22.5vh;
+  top: 27.5vh;
   left: 25vw;
-  width: 15vw;
-  height: 15vh;
+  width: min(15vw, 16.666vh);
+  height: 25vh;
 }
 
 /* Mobile Screen Responsive Adaptations (Portrait) */
@@ -239,10 +269,10 @@
   }
 
   .zoom_el:nth-of-type(7) .zoom_imageContainer {
-    top: 24vh;
+    top: 28vh;
     left: 34vw;
     width: 22vw;
-    height: 15vh;
+    height: 20vh;
   }
 }
 
