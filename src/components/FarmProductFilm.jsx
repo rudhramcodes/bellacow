@@ -81,10 +81,10 @@ export default function FarmProductFilm() {
         <div className="relative mx-auto flex min-h-[82svh] max-w-7xl items-center px-5 py-20 sm:px-8 lg:px-12">
           <motion.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }} className="bella-liquid-glass max-w-2xl rounded-[2rem] p-7 text-[#2F3426] sm:p-10">
             <h2 className="font-serif text-[clamp(4.25rem,10vw,8.5rem)] leading-[0.78] tracking-[-0.065em]">Coming<br />soon.</h2>
-            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-serif text-xl text-[#4B513B] sm:text-3xl">
+            {/* <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-serif text-xl text-[#4B513B] sm:text-3xl">
               <span>Artisanal Ice Cream Cups</span>
               <span>Pocket Chaas Cartons</span>
-            </div>
+            </div> */}
           </motion.div>
         </div>
       </section>
