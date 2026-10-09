@@ -59,7 +59,7 @@ function ProductScene({ product, index, reduceMotion }) {
         transition={{ duration: reduceMotion ? 0 : 0.55, delay: reduceMotion ? 0 : 0.12, ease: [0.22, 1, 0.36, 1] }}
         className="bella-liquid-glass absolute left-4 right-4 top-[11svh] z-20 rounded-[1.8rem] px-5 py-5 text-[#2F3426] sm:left-8 sm:right-auto sm:top-[10svh] sm:max-w-[31rem] sm:px-7 sm:py-6 lg:left-[7vw] lg:top-1/2 lg:w-[min(31rem,38vw)] lg:-translate-y-1/2 lg:px-9 lg:py-8"
       >
-        <p className="font-serif text-lg leading-none text-[#6A4636]">{product.format}</p>
+        {/* <p className="font-serif text-lg leading-none text-[#6A4636]">{product.format}</p> */}
         <h2 className="mt-2 font-serif text-4xl leading-[0.9] tracking-[-0.05em] sm:text-6xl lg:text-6xl">{product.name}</h2>
         <p className="mt-4 max-w-md font-serif text-lg leading-snug sm:text-xl lg:text-2xl">“{product.thought}” </p>
       </motion.div>

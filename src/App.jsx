@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Check, Bell, Volume2, VolumeX, RotateCcw,
+  Volume2, VolumeX, RotateCcw,
 } from 'lucide-react';
 import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -177,11 +177,6 @@ function playCowbellChime() {
 /* MAIN COMPONENT                                                            */
 /* ========================================================================= */
 export default function App() {
-  const [storyOpen, setStoryOpen] = useState(false);
-  const [signUpOpen, setSignUpOpen] = useState(false);
-  const [signedUp, setSignedUp] = useState(false);
-  const [contactVal, setContactVal] = useState('');
-
   const heroVideoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [videoEnded, setVideoEnded] = useState(false);
@@ -274,12 +269,6 @@ export default function App() {
       lenis.destroy();
     };
   }, []);
-
-  const handleSignUp = (e) => {
-    e.preventDefault();
-    if (!contactVal.trim()) return;
-    setSignedUp(true);
-  };
 
   return (
     <div className="min-h-screen w-full bg-[#F4F1E8] text-[#3D2517] font-sans relative selection:bg-[#B46B55] selection:text-white">
@@ -396,204 +385,7 @@ export default function App() {
       {/* =================================================================== */}
       {/* REAL FLOATING MILK FOOTER (100% RESPONSIVE - MOBILE TO ULTRA-WIDE)  */}
       {/* =================================================================== */}
-      <MilkFloatingFooter
-        onOpenStory={() => setStoryOpen(true)}
-        onOpenSignUp={() => setSignUpOpen(true)}
-      />
-
-
-
-      {/* =================================================================== */}
-      {/* STORY MODAL: BELLA PERSONALLY NARRATES HER STORY                    */}
-      {/* =================================================================== */}
-      <AnimatePresence>
-        {storyOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#2F1C14]/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
-            onClick={() => setStoryOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-[#FFFDF9] border border-[#EADBCE] rounded-2xl max-w-2xl w-full p-6 sm:p-10 shadow-2xl relative max-h-[90vh] overflow-y-auto"
-            >
-              <button
-                onClick={() => setStoryOpen(false)}
-                className="absolute top-5 right-5 text-[#8F6355] hover:text-[#3D2517] p-2 rounded-full hover:bg-[#F3ECE2] transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-3 mb-6 border-b border-[#EADBCE] pb-4">
-                <div className="w-11 h-11 rounded-full bg-[#BA6951] text-white flex items-center justify-center shadow-sm">
-                  <Bell className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="font-serif text-2xl sm:text-3xl text-[#1E1B18] font-bold leading-none">
-                    Meet Bella
-                  </h2>
-                  <span className="font-mono text-xs text-[#BA6951] uppercase tracking-wider font-semibold">
-                    The Bell That Started It All
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-4 text-sm sm:text-base text-[#4A3B32] leading-relaxed">
-                <p className="font-serif text-lg text-[#1E1B18] italic border-l-2 border-[#BA6951] pl-3 py-1">
-                  “Every world has a character you remember. Ours has a bell around her neck.”
-                </p>
-
-                <p>
-                  <strong className="text-[#1E1B18]">This Navratri, meet Bella.</strong>
-                </p>
-
-                <p>
-                  She’s not just a cow. She’s the calm presence behind every glass of milk, the familiar bell you hear before sunrise, and the quiet little reminder that some things are better when they stay simple.
-                </p>
-
-                <p>
-                  Bella lives in a world where freshness is a ritual, trust is earned every day, and good milk doesn’t need a complicated story.
-                </p>
-
-                <p>
-                  So we built Bella’s World — a place inspired by the things we grew up with, but made for the way we live today.
-                </p>
-
-                <p>
-                  And during Navratri, when every corner comes alive with colour, music and celebration, Bella has her own little celebration too.
-                </p>
-
-                {/* The Bell That Started It All Callout */}
-                <div className="bg-[#FAF5EC] p-5 rounded-2xl border border-[#EADBCE] space-y-3 my-4">
-                  <h3 className="font-serif text-lg font-bold text-[#1E1B18]">
-                    Meet Bella: The Bell That Started It All
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#5C4C42]">
-                    Before milk came with labels, logos and promises, it came with a sound.
-                  </p>
-                  <p className="text-xs sm:text-sm text-[#5C4C42]">
-                    A bicycle bell outside your gate. A familiar ring in the early morning. A small sound that meant one thing — the milk was here.
-                  </p>
-                  <p className="text-xs sm:text-sm text-[#5C4C42]">
-                    Bella gets her name from that feeling. She represents the kind of trust that doesn’t need an introduction. The kind you recognise before you even see it.
-                  </p>
-                  <div className="text-xs font-mono font-bold text-[#BA6951] pt-1">
-                    One little bell. A thousand familiar mornings.
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F4EFE6] border border-[#E3DACB]">
-                  <h4 className="font-serif text-base font-bold text-[#1E1B18] mb-1">
-                    A World Built Around Goodness
-                  </h4>
-                  <p className="text-xs sm:text-sm text-[#6C584C]">
-                    Bella’s world is simple. There are no complicated rules here. Just fresh milk, happy cows, honest processes and the little things that make everyday life complete.
-                  </p>
-                </div>
-
-                <p className="text-xs sm:text-sm text-[#7D6B5E] italic">
-                  Because this time, you’re not just meeting a brand. You’re meeting Bella.
-                </p>
-              </div>
-
-              <div className="mt-8 pt-4 border-t border-[#EADBCE] flex items-center justify-between">
-                <span className="font-handwritten text-xl text-[#1E1B18]">
-                  With love, Bella
-                </span>
-                <button
-                  onClick={() => {
-                    setStoryOpen(false);
-                    setSignUpOpen(true);
-                  }}
-                  className="bg-[#BA6951] hover:bg-[#A35540] text-white text-xs font-semibold px-6 py-2.5 rounded-full transition-colors cursor-pointer shadow-md uppercase tracking-wider"
-                >
-                  Meet Her In Surat
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* =================================================================== */}
-      {/* SIGN UP MODAL: GET FREE FESTIVAL TASTING PASS                       */}
-      {/* =================================================================== */}
-      <AnimatePresence>
-        {signUpOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#2F1C14]/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
-            onClick={() => setSignUpOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-[#FFFDF9] border border-[#EADBCE] rounded-2xl max-w-md w-full p-5 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto"
-            >
-              <button
-                onClick={() => setSignUpOpen(false)}
-                className="absolute top-4 right-4 text-[#8F6355] hover:text-[#3D2517] p-2 rounded-full hover:bg-[#F3ECE2] transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="text-center mb-5 sm:mb-6">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#BA6951] text-white flex items-center justify-center mx-auto mb-2.5 sm:mb-3 shadow-sm">
-                  <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <h3 className="font-serif text-xl sm:text-2xl text-[#3D2517]">
-                  Meet Bella in Surat
-                </h3>
-                <p className="text-xs text-[#6A4636] mt-1">
-                  Get your free artisanal ice cream tasting pass for our 18ft Navratri stall.
-                </p>
-              </div>
-
-              {!signedUp ? (
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div>
-                    <label className="text-xs font-semibold text-[#3D2517] block mb-1">
-                      WhatsApp or Phone Number
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="+91 98765 43210"
-                      value={contactVal}
-                      onChange={(e) => setContactVal(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-lg border border-[#EADBCE] bg-[#FAF5EC] text-base sm:text-sm text-[#3D2517] focus:outline-none focus:border-[#3D2517]"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-[#3D2517] hover:bg-[#2F1C14] text-[#FAF5EC] font-semibold text-xs uppercase tracking-wider py-3 rounded-lg transition-colors cursor-pointer shadow-sm"
-                  >
-                    Claim Free Scoop Pass
-                  </button>
-                </form>
-              ) : (
-                <div className="p-4 bg-[#F2F7EE] border border-[#A4C4A0] rounded-xl text-center space-y-2 text-[#2F472B]">
-                  <Check className="w-6 h-6 mx-auto text-[#4B7545]" />
-                  <p className="font-serif text-lg font-bold">Pass Confirmed!</p>
-                  <p className="text-xs">
-                    Show this confirmation at our 18-foot stall in Surat for your complimentary tasting scoop.
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+      <MilkFloatingFooter />
     </div>
   );
 }
