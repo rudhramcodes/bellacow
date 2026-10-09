@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ZoomParallax from './components/ZoomParallax';
 import ScrollFloat from './components/ui/ScrollFloat';
 import MilkFloatingFooter from './components/MilkFloatingFooter';
+import FarmProductFilm from './components/FarmProductFilm';
 
 
 /* ========================================================================= */
@@ -387,7 +388,7 @@ export default function App() {
       {/* =================================================================== */}
       <ZoomParallax />
 
-
+      <FarmProductFilm />
 
       {/* =================================================================== */}
       {/* REAL FLOATING MILK FOOTER (100% RESPONSIVE - MOBILE TO ULTRA-WIDE)  */}
