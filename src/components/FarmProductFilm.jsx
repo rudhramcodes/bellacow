@@ -76,15 +76,19 @@ export default function FarmProductFilm() {
         <ProductScene key={product.id} product={product} index={index} reduceMotion={reduceMotion} />
       ))}
 
-      <section className="relative min-h-[82svh] overflow-hidden bg-[#DCEAF1]">
+      <section className="relative min-h-[70svh] overflow-hidden bg-[#DCEAF1]">
         <GardenBackground index={0} reduceMotion={reduceMotion} lazy />
-        <div className="relative mx-auto flex min-h-[82svh] max-w-7xl items-center px-5 py-20 sm:px-8 lg:px-12">
-          <motion.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }} className="bella-liquid-glass max-w-2xl rounded-[2rem] p-7 text-[#2F3426] sm:p-10">
-            <h2 className="font-serif text-[clamp(4.25rem,10vw,8.5rem)] leading-[0.78] tracking-[-0.065em]">Coming<br />soon.</h2>
-            {/* <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-serif text-xl text-[#4B513B] sm:text-3xl">
-              <span>Artisanal Ice Cream Cups</span>
-              <span>Pocket Chaas Cartons</span>
-            </div> */}
+        <div className="relative z-10 flex min-h-[70svh] w-full items-center justify-center px-5 pb-16 pt-24 sm:pb-20 sm:px-8 lg:pb-24">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="bella-liquid-glass w-full max-w-md rounded-[2.2rem] px-8 py-8 text-center text-[#2F3426] shadow-[0_20px_45px_rgba(47,52,38,0.2)] sm:max-w-lg sm:px-10 sm:py-10 lg:max-w-xl"
+          >
+            <h2 className="font-serif text-center text-[clamp(3.5rem,7.5vw,7rem)] leading-[0.85] tracking-[-0.05em]">
+              Coming<br />soon.
+            </h2>
           </motion.div>
         </div>
       </section>
