@@ -18,9 +18,11 @@ export default function ZoomParallax() {
 
   const pictures = [
     {
-      src: '/images/bella-gallery/farm.webp',
+      src: '/images/bella-gallery/cow-desktop.png', // Desktop image
+      mobileSrc: '/images/bella-gallery/cow-mobile.png', // Mobile image (change to your mobile image path/URL)
       scale: scale4,
       alt: 'Sunrise over the Bella Cow farm, with grazing cows and a dairy farmhouse',
+      className: 'cow-desktop-filter',
     },
     {
       src: '/images/bella-gallery/ghee.webp',
@@ -57,15 +59,28 @@ export default function ZoomParallax() {
   return (
     <div ref={container} className="zoom_container">
       <div className="zoom_sticky">
-        {pictures.map(({ src, scale, alt }, index) => {
+        {pictures.map(({ src, mobileSrc, scale, alt, className = '' }, index) => {
           return (
             <motion.div key={index} style={{ scale }} className="zoom_el">
               <div className="zoom_imageContainer">
-                <img
-                  src={src}
-                  alt={alt}
-                  decoding="async"
+                {mobileSrc ? (
+                  <picture>
+                    <source media="(max-width: 768px)" srcSet={mobileSrc} />
+                    <img
+                      src={src}
+                      alt={alt}
+                      decoding="async"
+                      className={className}
+                    />
+                  </picture>
+                ) : (
+                  <img
+                    src={src}
+                    alt={alt}
+                    decoding="async"
+                    className={className}
                   />
+                )}
               </div>
             </motion.div>
           );
