@@ -1,0 +1,63 @@
+name: Build and deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  website:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Upload production build
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.HOSTINGER_HOST }}
+          DEPLOY_PORT: ${{ secrets.HOSTINGER_PORT }}
+          DEPLOY_USER: ${{ secrets.HOSTINGER_USER }}
+          DEPLOY_PATH: ${{ secrets.HOSTINGER_PATH }}
+          DEPLOY_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for name in DEPLOY_HOST DEPLOY_PORT DEPLOY_USER DEPLOY_PATH DEPLOY_KEY DEPLOY_KNOWN_HOSTS; do
+            if [[ -z "${!name}" ]]; then
+              echo "Missing required setting: $name" >&2
+              exit 1
+            fi
+          done
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*$ ]]
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
+          [[ "$DEPLOY_USER" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_-]*$ ]]
+          [[ "$DEPLOY_PATH" =~ ^/home/[a-zA-Z0-9_-]+/domains/bellacow\.com/public_html/?$ ]]
+          test -s dist/index.html
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$HOME/.ssh/hostinger"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          trap 'rm -f "$HOME/.ssh/hostinger"' EXIT
+          export RSYNC_RSH="ssh -i $HOME/.ssh/hostinger -p $DEPLOY_PORT -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          # Upload dependencies before publishing the new HTML entry point.
+          # Retain old assets for open browser sessions; periodically clean them after a backup.
+          rsync -az --checksum --delay-updates --chmod=D755,F644 --exclude=index.html dist/ "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
+          rsync -az --checksum --delay-updates --chmod=F644 dist/index.html "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
